@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>DTWIG · Gemelo digital del invernadero Osiris</title>
-<meta name="description" content="Explorador del gemelo digital del invernadero experimental de la UMU: qué habría pasado con otros actuadores, según modelos de 15 min y de 1 h.">
+<title>DTWIG · Digital twin of the Osiris greenhouse</title>
+<meta name="description" content="What-if explorer for the digital twin of the University of Murcia experimental greenhouse: what would have happened with other actuator settings, according to 15-min and 1-h models.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
@@ -14,32 +14,32 @@
 <body>
 <div class="wrap">
   <header>
-    <div class="eyebrow">Invernadero experimental UMU · 76,8 m² · campaña aleatorizada de agosto de 2026</div>
+    <div class="eyebrow">University of Murcia experimental greenhouse · 76.8 m² · randomised campaign, August 2026</div>
     <h1>DTWIG</h1>
-    <p class="tagline"><b>D</b>igital <b>T</b>win for <b>W</b>hat-<b>I</b>f in <b>G</b>reenhouses · el gemelo del invernadero Osiris</p>
-    <p class="lede">Dos gemelos digitales aprendidos con los mismos 31 días. Uno muestrea el clima
-      <span class="k15">cada 15 minutos</span> y el otro <span class="k60">cada hora</span>. Elige un bloque
-      real de la campaña, cambia lo que hicieron los actuadores durante sus dos horas de tratamiento y
-      compara qué <b>habría pasado</b> según cada uno.</p>
+    <p class="tagline"><b>D</b>igital <b>T</b>win for <b>W</b>hat-<b>I</b>f in <b>G</b>reenhouses · the twin of the Osiris greenhouse</p>
+    <p class="lede">Two digital twins learned from the same 31 days. One samples the climate
+      <span class="k15">every 15 minutes</span>, the other <span class="k60">every hour</span>. Pick a real
+      block of the campaign, change what the actuators did during its two treatment hours and
+      compare what each twin says <b>would have happened</b>.</p>
   </header>
 
   <section class="rack">
     <div class="panel controls">
       <div class="block-card">
         <div class="strip-head">
-          <span class="label">Bloque</span>
+          <span class="label">Block</span>
           <span class="label" id="block-phase"></span>
         </div>
         <div class="block-title">
-          <button class="step-btn" id="prev" aria-label="Bloque anterior">‹</button>
+          <button class="step-btn" id="prev" aria-label="Previous block">‹</button>
           <strong id="block-name">—</strong>
-          <button class="step-btn" id="next" aria-label="Bloque siguiente">›</button>
+          <button class="step-btn" id="next" aria-label="Next block">›</button>
         </div>
         <div class="wx" id="block-wx"></div>
       </div>
       <div>
-        <div class="strip" id="strip" role="group" aria-label="Bloques diurnos de agosto"></div>
-        <div class="strip-axis"><span>3 ago</span><span>temperatura exterior del bloque</span><span>2 sep</span></div>
+        <div class="strip" id="strip" role="group" aria-label="August daytime blocks"></div>
+        <div class="strip-axis"><span>3 Aug</span><span>outside temperature of the block</span><span>2 Sep</span></div>
       </div>
       <div class="presets" id="presets"></div>
       <div class="faders" id="faders"></div>
@@ -49,18 +49,18 @@
       <div class="readouts" id="readouts"></div>
       <p class="verdict" id="verdict"></p>
       <div class="legend">
-        <span><i class="sw meas"></i>Medido</span>
-        <span><i class="sw t15"></i>Gemelo 15 min</span>
-        <span><i class="sw t60"></i>Gemelo 1 h</span>
-        <span><i class="sw ghost"></i>Gemelo con lo registrado</span>
+        <span><i class="sw meas"></i>Measured</span>
+        <span><i class="sw t15"></i>15-min twin</span>
+        <span><i class="sw t60"></i>1-h twin</span>
+        <span><i class="sw ghost"></i>Twin with logged settings</span>
       </div>
       <div>
-        <div class="chart-title"><span class="label">Temperatura interior (°C)</span><span class="label">tratamiento 0–120 min</span></div>
-        <svg id="chart-T" viewBox="0 0 760 300" role="img" aria-label="Temperatura interior medida y simulada"></svg>
+        <div class="chart-title"><span class="label">Inside temperature (°C)</span><span class="label">treatment 0–120 min</span></div>
+        <svg id="chart-T" viewBox="0 0 760 300" role="img" aria-label="Measured and simulated inside temperature"></svg>
       </div>
       <div>
-        <div class="chart-title"><span class="label">Humedad relativa interior (%)</span></div>
-        <svg id="chart-H" viewBox="0 0 760 190" role="img" aria-label="Humedad interior medida y simulada"></svg>
+        <div class="chart-title"><span class="label">Inside relative humidity (%)</span></div>
+        <svg id="chart-H" viewBox="0 0 760 190" role="img" aria-label="Measured and simulated inside humidity"></svg>
       </div>
     </div>
   </section>
@@ -68,27 +68,27 @@
   <section class="panel bench">
     <div class="bench-head">
       <div>
-        <h2>Lo que midieron los bloques</h2>
-        <p>Cada grupo de actuadores se sorteó por bloques de dos horas, así que la campaña responde por sí
-          misma a la pregunta «¿y si este grupo hubiera ido al máximo en vez de apagado?». Aquí está esa
-          respuesta medida junto a la de cada gemelo, simulando cada bloque con un modelo que no vio su día.</p>
+        <h2>What the blocks measured</h2>
+        <p>Every actuator group was randomised over two-hour blocks, so the campaign itself answers the
+          question “what if this group had been at full rather than off?”. Here is that measured answer
+          next to each twin’s, with every block simulated by a model that never saw its day.</p>
       </div>
       <div class="toggle" role="group" aria-label="Variable">
-        <button id="v-T" aria-pressed="true">Temperatura</button>
-        <button id="v-H" aria-pressed="false">Humedad</button>
+        <button id="v-T" aria-pressed="true">Temperature</button>
+        <button id="v-H" aria-pressed="false">Humidity</button>
       </div>
     </div>
     <div class="bench-grid">
-      <svg id="chart-E" viewBox="0 0 640 330" role="img" aria-label="Efectos medidos y simulados por grupo"></svg>
+      <svg id="chart-E" viewBox="0 0 640 330" role="img" aria-label="Measured and simulated effects by group"></svg>
       <div class="choice" id="choice"></div>
     </div>
   </section>
 
   <footer>
-    <p class="note">Los gemelos de esta página se ajustan con todo agosto para poder simular cualquier bloque en
-      el navegador; el panel de abajo usa los resultados fuera de muestra del artículo (validación cruzada por
-      días). Exterior de la estación del propio invernadero. Modelos de un paso de gradient boosting que predicen
-      el incremento de temperatura y de humedad.</p>
+    <p class="note">The twins on this page are fitted on all of August so that any block can be simulated in the
+      browser; the panel above uses the paper’s out-of-sample results (cross-validation by day). Outside
+      weather from the greenhouse’s own station. One-step gradient-boosting models that predict the change
+      in temperature and humidity.</p>
   </footer>
 </div>
 </body>

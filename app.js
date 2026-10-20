@@ -6,7 +6,7 @@
     D = await r.json();
   } catch (e) {
     document.querySelector(".wrap").insertAdjacentHTML("afterbegin",
-      '<p class="note">No se han podido cargar los datos (twin_data.json). Sirve la carpeta con un servidor web; abrir index.html con file:// no funciona.</p>');
+      '<p class="note">Could not load the data (twin_data.json). Serve this folder with a web server; opening index.html via file:// does not work.</p>');
     return;
   }
   const F = D.features, GR = D.groups;
@@ -68,25 +68,25 @@
 
   // ---------- actuators ----------
   const ACT = [
-    { g: "VENT_ROOF", name: "Ventanas cenitales", unit: "%", levels: [0, 25, 50, 75, 100] },
-    { g: "VENT_SIDE", name: "Ventanas laterales", unit: "%", levels: [0, 50, 100] },
-    { g: "SHADE", name: "Pantalla de sombreo", unit: "%", levels: [0, 50, 100] },
-    { g: "FOG", name: "Fog", unit: "s/min", levels: [0, 5, 10, 20] },
-    { g: "LIGHTS", name: "Luces LED", unit: "/10", levels: [0, 4, 8, 10] },
-    { g: "RECIRC", name: "Recirculador centro", unit: "", levels: [0, 1], fmt: v => v ? "ON" : "off" },
-    { g: "RECIRC2", name: "Recirculador fog", unit: "", levels: [0, 1], fmt: v => v ? "ON" : "off" },
+    { g: "VENT_ROOF", name: "Roof vents", unit: "%", levels: [0, 25, 50, 75, 100] },
+    { g: "VENT_SIDE", name: "Side vents", unit: "%", levels: [0, 50, 100] },
+    { g: "SHADE", name: "Shade screen", unit: "%", levels: [0, 50, 100] },
+    { g: "FOG", name: "Fogging", unit: "s/min", levels: [0, 5, 10, 20] },
+    { g: "LIGHTS", name: "LED lights", unit: "/10", levels: [0, 4, 8, 10] },
+    { g: "RECIRC", name: "Centre recirculator", unit: "", levels: [0, 1], fmt: v => v ? "ON" : "off" },
+    { g: "RECIRC2", name: "Fog recirculator", unit: "", levels: [0, 1], fmt: v => v ? "ON" : "off" },
   ];
   const fmtLevel = (a, v) => a.fmt ? a.fmt(v) : String(v);
-  const nf1 = new Intl.NumberFormat("es-ES", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-  const nf2 = new Intl.NumberFormat("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const nf1 = new Intl.NumberFormat("en-GB", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  const nf2 = new Intl.NumberFormat("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const signed = (v, f = nf1) => (v > 0 ? "+" : v < 0 ? "−" : "±") + f.format(Math.abs(v));
 
   const PRESETS = [
-    { id: "open", label: "Abrir todas las ventanas", s: { VENT_ROOF: 100, VENT_SIDE: 100 } },
-    { id: "shut", label: "Cerrarlo todo", s: { VENT_ROOF: 0, VENT_SIDE: 0, SHADE: 0, FOG: 0 } },
-    { id: "fog", label: "Fog al máximo", s: { FOG: 20 } },
-    { id: "shade", label: "Pantalla desplegada", s: { SHADE: 100 } },
-    { id: "logged", label: "Como se registró", s: {} },
+    { id: "open", label: "Open all vents", s: { VENT_ROOF: 100, VENT_SIDE: 100 } },
+    { id: "shut", label: "Close everything", s: { VENT_ROOF: 0, VENT_SIDE: 0, SHADE: 0, FOG: 0 } },
+    { id: "fog", label: "Fogging at full", s: { FOG: 20 } },
+    { id: "shade", label: "Screen deployed", s: { SHADE: 100 } },
+    { id: "logged", label: "As logged", s: {} },
   ];
 
   // ---------- state ----------
@@ -124,10 +124,10 @@
     ["09", "12", "15", "18"].forEach(h => {
       const btn = document.createElement("button"); btn.className = "cell"; btn.type = "button";
       const idx = blocks.findIndex(b => b.t0.startsWith(`${day} ${h}`));
-      if (idx < 0) { btn.disabled = true; btn.setAttribute("aria-label", `${day} ${h}:00 sin datos`); }
+      if (idx < 0) { btn.disabled = true; btn.setAttribute("aria-label", `${day} ${h}:00 no data`); }
       else {
         btn.dataset.i = idx; btn.dataset.t = (blocks[idx].ext.T - tMin) / (tMax - tMin);
-        btn.setAttribute("aria-label", `${day} ${h}:00, exterior ${blocks[idx].ext.T} °C`);
+        btn.setAttribute("aria-label", `${day} ${h}:00, outside ${blocks[idx].ext.T} °C`);
         btn.addEventListener("click", () => { state.i = idx; render(); });
         cellBtns.push(btn);
       }
@@ -150,7 +150,7 @@
       b.addEventListener("click", () => { state.scen = { ...state.scen }; if (v == null) delete state.scen[a.g]; else state.scen[a.g] = v; render(); });
       b.dataset.v = v == null ? "" : v; seg.appendChild(b); return b;
     };
-    mk(null, "Registrado", "reg");
+    mk(null, "Logged", "reg");
     a.levels.forEach(v => mk(v, fmtLevel(a, v)));
     segs[a.g] = seg; box.appendChild(seg); faders.appendChild(box);
   });
@@ -190,7 +190,7 @@
     niceTicks(lo, hi, key === "T" ? 6 : 4).forEach(v => {
       el("line", { x1: L, x2: W - R, y1: ys(v), y2: ys(v), class: "gridline" }, ax);
       const t = el("text", { x: L - 6, y: ys(v) + 3.5, "text-anchor": "end" }, ax);
-      t.textContent = (key === "T" ? nf1 : new Intl.NumberFormat("es-ES", { maximumFractionDigits: 0 })).format(v);
+      t.textContent = (key === "T" ? nf1 : new Intl.NumberFormat("en-GB", { maximumFractionDigits: 0 })).format(v);
     });
     [-60, 0, 60, 120, 180].forEach(t => {
       const tx = el("text", { x: xs(t), y: H - 8, "text-anchor": "middle" }, ax);
@@ -225,11 +225,11 @@
     niceTicks(lo, hi, 6).forEach(t => {
       el("line", { x1: xs(t), x2: xs(t), y1: T - 6, y2: H - 20, class: "gridline" }, ax);
       const tx = el("text", { x: xs(t), y: H - 6, "text-anchor": "middle" }, ax);
-      tx.textContent = (t > 0 ? "+" : "") + new Intl.NumberFormat("es-ES", { maximumFractionDigits: 1 }).format(t);
+      tx.textContent = (t > 0 ? "+" : "") + new Intl.NumberFormat("en-GB", { maximumFractionDigits: 1 }).format(t);
     });
     el("line", { x1: xs(0), x2: xs(0), y1: T - 6, y2: H - 20, stroke: "var(--ink)", "stroke-width": 1.2 }, svg);
     const hd = el("text", { x: W - R, y: 12, "text-anchor": "end", class: "tick" }, svg);
-    hd.textContent = v === "T" ? "efecto en la temperatura media del bloque (°C)" : "efecto en la humedad media del bloque (puntos de HR)";
+    hd.textContent = v === "T" ? "effect on block-mean temperature (°C)" : "effect on block-mean humidity (RH points)";
     rows.forEach((r, k) => {
       const y0 = T + k * rowH;
       const nm = el("text", { x: 0, y: y0 + 21, "font-family": "var(--font-body)", "font-size": 13, fill: "var(--ink)" }, svg);
@@ -247,19 +247,19 @@
   }
   function drawChoice() {
     const box = document.getElementById("choice");
-    const names = { VENT_ROOF: "Cenitales", VENT_SIDE: "Laterales", SHADE: "Pantalla", FOG: "Fog" };
+    const names = { VENT_ROOF: "Roof vents", VENT_SIDE: "Side vents", SHADE: "Screen", FOG: "Fogging" };
     const colors = { VENT_ROOF: "var(--cold)", VENT_SIDE: "var(--t15)", SHADE: "var(--muted)", FOG: "var(--t60)" };
     const row = dt => D.choice.find(c => c.dt_min === dt);
     const c15 = row(15), c60 = row(60);
     const bar = c => Object.keys(names).map(g => `<i style="width:${(100 * c["twin_picks_" + g]).toFixed(1)}%;background:${colors[g]}" title="${names[g]} ${(100 * c["twin_picks_" + g]).toFixed(0)} %"></i>`).join("");
-    const top = c => { const g = Object.keys(names).sort((a, b) => c["twin_picks_" + b] - c["twin_picks_" + a])[0]; return `${names[g]} (${Math.round(100 * c["twin_picks_" + g])} % de los bloques)`; };
+    const top = c => { const g = Object.keys(names).sort((a, b) => c["twin_picks_" + b] - c["twin_picks_" + a])[0]; return `${names[g]} (${Math.round(100 * c["twin_picks_" + g])} % of blocks)`; };
     box.innerHTML = `
-      <span class="label">¿Qué enfría más a mediodía?</span>
-      <div class="choice-row"><span>Bloques aleatorizados: <b>${names[c15.measured_best]}</b></span></div>
-      <div class="choice-row"><span class="k15">Gemelo 15 min: ${top(c15)}</span><div class="choice-bar">${bar(c15)}</div></div>
-      <div class="choice-row"><span class="k60">Gemelo 1 h: ${top(c60)}</span><div class="choice-bar">${bar(c60)}</div></div>
+      <span class="label">What cools most at midday?</span>
+      <div class="choice-row"><span>Randomised blocks: <b>${names[c15.measured_best]}</b></span></div>
+      <div class="choice-row"><span class="k15">15-min twin: ${top(c15)}</span><div class="choice-bar">${bar(c15)}</div></div>
+      <div class="choice-row"><span class="k60">1-h twin: ${top(c60)}</span><div class="choice-bar">${bar(c60)}</div></div>
       <div class="legend">${Object.keys(names).map(g => `<span><i class="sw" style="border-color:${colors[g]}"></i>${names[g]}</span>`).join("")}</div>
-      <div class="legend"><span><i class="sw meas"></i>Medido (± error típico)</span><span><i class="sw t15"></i>Gemelo 15 min</span><span><i class="sw t60"></i>Gemelo 1 h</span></div>`;
+      <div class="legend"><span><i class="sw meas"></i>Measured (± standard error)</span><span><i class="sw t15"></i>15-min twin</span><span><i class="sw t60"></i>1-h twin</span></div>`;
   }
   ["T", "H"].forEach(v => document.getElementById("v-" + v).addEventListener("click", () => {
     state.v = v;
@@ -269,18 +269,18 @@
   }));
 
   // ---------- render ----------
-  const MESES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+  const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   function render() {
     const b = blocks[state.i];
     const [d, h] = b.t0.split(" ");
     const [, mo, da] = d.split("-");
     const hEnd = String(+h.slice(0, 2) + 2).padStart(2, "0") + h.slice(2);
-    document.getElementById("block-name").textContent = `${+da} ${MESES[+mo - 1]} · ${h}–${hEnd}`;
-    document.getElementById("block-phase").textContent = { B: "dosis–respuesta", C: "factorial", D: "space-filling" }[b.phase] || "";
+    document.getElementById("block-name").textContent = `${+da} ${MONTHS[+mo - 1]} · ${h}–${hEnd}`;
+    document.getElementById("block-phase").textContent = { B: "dose–response", C: "factorial", D: "space-filling" }[b.phase] || "";
     document.getElementById("block-wx").innerHTML =
-      `<span>Exterior <span class="num">${nf1.format(b.ext.T)} °C</span></span>` +
-      `<span>HR <span class="num">${b.ext.H} %</span></span>` +
-      `<span>PAR <span class="num">${b.ext.PAR}</span> µmol m⁻² s⁻¹</span>`;
+      `<span>Outside <span class="num">${nf1.format(b.ext.T)} °C</span></span>` +
+      `<span>RH <span class="num">${b.ext.H} %</span></span>` +
+      `<span>PAR <span class="num">${b.ext.PAR}</span> W m⁻²</span>`;
     cellBtns.forEach(c => c.setAttribute("aria-pressed", +c.dataset.i === state.i));
     ACT.forEach(a => {
       const set = state.scen[a.g];
@@ -289,7 +289,7 @@
         btn.setAttribute("aria-pressed", set == null ? v == null : v === set);
       });
       const lg = b.cmd[a.g];
-      document.getElementById("lg-" + a.g).textContent = `programado: ${fmtLevel(a, lg)}${a.unit && !a.fmt ? " " + a.unit : ""}`;
+      document.getElementById("lg-" + a.g).textContent = `programmed: ${fmtLevel(a, lg)}${a.unit && !a.fmt ? " " + a.unit : ""}`;
     });
 
     const r = {}, base = {};
@@ -299,20 +299,20 @@
     const changed = Object.keys(state.scen).length > 0;
     const measMean = (() => { const m = b.meas; const v = m.T.filter((_, i) => m.t[i] > 0 && m.t[i] <= 120 && Number.isFinite(m.T[i])); return v.reduce((a, c) => a + c, 0) / v.length; })();
     document.getElementById("readouts").innerHTML = `
-      <div class="readout r15"><span class="label">Gemelo 15 min</span><span class="big">${signed(dlt("15"))} °C</span>
-        <span class="sub">${signed(dlH("15"))} puntos de HR frente a lo registrado</span></div>
-      <div class="readout r60"><span class="label">Gemelo 1 h</span><span class="big">${signed(dlt("60"))} °C</span>
-        <span class="sub">${signed(dlH("60"))} puntos de HR frente a lo registrado</span></div>
-      <div class="readout"><span class="label">Medido en el bloque</span><span class="big num">${nf1.format(measMean)} °C</span>
-        <span class="sub">media de las 2 h de tratamiento, con lo registrado</span></div>`;
+      <div class="readout r15"><span class="label">15-min twin</span><span class="big">${signed(dlt("15"))} °C</span>
+        <span class="sub">${signed(dlH("15"))} RH points vs. logged</span></div>
+      <div class="readout r60"><span class="label">1-h twin</span><span class="big">${signed(dlt("60"))} °C</span>
+        <span class="sub">${signed(dlH("60"))} RH points vs. logged</span></div>
+      <div class="readout"><span class="label">Measured in the block</span><span class="big num">${nf1.format(measMean)} °C</span>
+        <span class="sub">mean over the 2 treatment hours, logged settings</span></div>`;
     const a = dlt("15"), c = dlt("60");
     let txt;
-    if (!changed) txt = "Sin cambios: los dos gemelos repiten el bloque tal como se registró. Elige otra acción a la izquierda.";
+    if (!changed) txt = "No change: both twins replay the block as logged. Pick another action on the left.";
     else if (Math.sign(a) !== Math.sign(c) && Math.abs(a) > 0.2 && Math.abs(c) > 0.2)
-      txt = `Los gemelos se contradicen: el de 15 min dice que la temperatura ${a < 0 ? "bajaría" : "subiría"} ${nf1.format(Math.abs(a))} °C y el de 1 h que ${c < 0 ? "bajaría" : "subiría"} ${nf1.format(Math.abs(c))} °C.`;
+      txt = `The twins disagree: the 15-min twin says the temperature would ${a < 0 ? "fall" : "rise"} by ${nf1.format(Math.abs(a))} °C, the 1-h twin that it would ${c < 0 ? "fall" : "rise"} by ${nf1.format(Math.abs(c))} °C.`;
     else if (Math.abs(c) < 0.25 * Math.abs(a) && Math.abs(a) > 0.5)
-      txt = `El gemelo de 1 h apenas ve efecto (${signed(c)} °C) donde el de 15 min ve ${signed(a)} °C.`;
-    else txt = `Los dos gemelos coinciden en el sentido: ${signed(a)} °C a 15 min y ${signed(c)} °C a 1 h.`;
+      txt = `The 1-h twin sees almost no effect (${signed(c)} °C) where the 15-min twin sees ${signed(a)} °C.`;
+    else txt = `Both twins agree on the direction: ${signed(a)} °C at 15 min and ${signed(c)} °C at 1 h.`;
     document.getElementById("verdict").textContent = txt;
 
     const meas = b.meas.t.map((t, i) => ({ t, T: b.meas.T[i], H: b.meas.H[i] })).filter(p => p.t >= -60 && p.t <= 180);

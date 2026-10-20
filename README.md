@@ -1,33 +1,32 @@
 # DTWIG — Digital Twin for What-If in Greenhouses
 
-Web del gemelo digital del invernadero Osiris (UMU).
-
-Web estática del gemelo digital del Paper B: simula en el navegador los modelos
-de 15 min y de 1 h sobre los bloques de la campaña de agosto. No necesita
-backend; basta con servir esta carpeta.
+What-if explorer for the digital twin of the Osiris experimental greenhouse
+(University of Murcia). The browser runs the 15-min and 1-h one-step models
+over the blocks of the August 2026 randomised campaign. There is no backend;
+serving this folder is enough.
 
     index.html  style.css  app.js  twin_data.json
 
-## Regenerar los datos
+## Regenerating the data
 
-    python3 paper/PaperB/presentacion/twin_export.py   # desde la raíz del repo
+    python3 paper/PaperB/presentacion/twin_export.py   # from the repository root
 
-## Probar en local
+## Running locally
 
-    cd paper/PaperB/presentacion/greenhouseDT && python3 -m http.server 8000
+    cd paper/PaperB/presentacion/web && python3 -m http.server 8000
     # http://localhost:8000
 
-Abrir `index.html` con doble clic (file://) no funciona: el navegador bloquea la
-carga de `twin_data.json`.
+Opening `index.html` directly (file://) does not work: the browser blocks
+loading `twin_data.json`.
 
-## Desplegar
+## Deploying
 
-Copia la carpeta a cualquier servidor estático (nginx, Apache, GitHub Pages…):
+Copy the folder to any static server (nginx, Apache, GitHub Pages…):
 
-    rsync -av paper/PaperB/presentacion/greenhouseDT/ usuario@servidor:/var/www/dtwig/
+    rsync -av paper/PaperB/presentacion/web/ user@server:/var/www/dtwig/
 
-`twin_data.json` pesa unos 3 MB y comprime a 1 MB: activa gzip para
-JSON. En nginx:
+`twin_data.json` is about 3 MB and compresses to 1 MB, so enable gzip for
+JSON. With nginx:
 
     location /dtwig/ {
         alias /var/www/dtwig/;
@@ -35,5 +34,5 @@ JSON. En nginx:
         gzip_types application/json application/javascript text/css;
     }
 
-Las tipografías vienen de Google Fonts; sin conexión a ellas la página usa las
-del sistema.
+Fonts come from Google Fonts; without access to them the page falls back to
+system fonts.
