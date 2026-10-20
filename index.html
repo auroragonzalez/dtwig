@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DTWIG · Gemelo digital del invernadero Osiris</title>
+<meta name="description" content="Explorador del gemelo digital del invernadero experimental de la UMU: qué habría pasado con otros actuadores, según modelos de 15 min y de 1 h.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="style.css">
+<script src="app.js" defer></script>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Invernadero experimental UMU · 76,8 m² · campaña aleatorizada de agosto de 2026</div>
+    <h1>DTWIG</h1>
+    <p class="tagline"><b>D</b>igital <b>T</b>win for <b>W</b>hat-<b>I</b>f in <b>G</b>reenhouses · el gemelo del invernadero Osiris</p>
+    <p class="lede">Dos gemelos digitales aprendidos con los mismos 31 días. Uno muestrea el clima
+      <span class="k15">cada 15 minutos</span> y el otro <span class="k60">cada hora</span>. Elige un bloque
+      real de la campaña, cambia lo que hicieron los actuadores durante sus dos horas de tratamiento y
+      compara qué <b>habría pasado</b> según cada uno.</p>
+  </header>
+
+  <section class="rack">
+    <div class="panel controls">
+      <div class="block-card">
+        <div class="strip-head">
+          <span class="label">Bloque</span>
+          <span class="label" id="block-phase"></span>
+        </div>
+        <div class="block-title">
+          <button class="step-btn" id="prev" aria-label="Bloque anterior">‹</button>
+          <strong id="block-name">—</strong>
+          <button class="step-btn" id="next" aria-label="Bloque siguiente">›</button>
+        </div>
+        <div class="wx" id="block-wx"></div>
+      </div>
+      <div>
+        <div class="strip" id="strip" role="group" aria-label="Bloques diurnos de agosto"></div>
+        <div class="strip-axis"><span>3 ago</span><span>temperatura exterior del bloque</span><span>2 sep</span></div>
+      </div>
+      <div class="presets" id="presets"></div>
+      <div class="faders" id="faders"></div>
+    </div>
+
+    <div class="panel scope">
+      <div class="readouts" id="readouts"></div>
+      <p class="verdict" id="verdict"></p>
+      <div class="legend">
+        <span><i class="sw meas"></i>Medido</span>
+        <span><i class="sw t15"></i>Gemelo 15 min</span>
+        <span><i class="sw t60"></i>Gemelo 1 h</span>
+        <span><i class="sw ghost"></i>Gemelo con lo registrado</span>
+      </div>
+      <div>
+        <div class="chart-title"><span class="label">Temperatura interior (°C)</span><span class="label">tratamiento 0–120 min</span></div>
+        <svg id="chart-T" viewBox="0 0 760 300" role="img" aria-label="Temperatura interior medida y simulada"></svg>
+      </div>
+      <div>
+        <div class="chart-title"><span class="label">Humedad relativa interior (%)</span></div>
+        <svg id="chart-H" viewBox="0 0 760 190" role="img" aria-label="Humedad interior medida y simulada"></svg>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel bench">
+    <div class="bench-head">
+      <div>
+        <h2>Lo que midieron los bloques</h2>
+        <p>Cada grupo de actuadores se sorteó por bloques de dos horas, así que la campaña responde por sí
+          misma a la pregunta «¿y si este grupo hubiera ido al máximo en vez de apagado?». Aquí está esa
+          respuesta medida junto a la de cada gemelo, simulando cada bloque con un modelo que no vio su día.</p>
+      </div>
+      <div class="toggle" role="group" aria-label="Variable">
+        <button id="v-T" aria-pressed="true">Temperatura</button>
+        <button id="v-H" aria-pressed="false">Humedad</button>
+      </div>
+    </div>
+    <div class="bench-grid">
+      <svg id="chart-E" viewBox="0 0 640 330" role="img" aria-label="Efectos medidos y simulados por grupo"></svg>
+      <div class="choice" id="choice"></div>
+    </div>
+  </section>
+
+  <footer>
+    <p class="note">Los gemelos de esta página se ajustan con todo agosto para poder simular cualquier bloque en
+      el navegador; el panel de abajo usa los resultados fuera de muestra del artículo (validación cruzada por
+      días). Exterior de la estación del propio invernadero. Modelos de un paso de gradient boosting que predicen
+      el incremento de temperatura y de humedad.</p>
+  </footer>
+</div>
+</body>
+</html>
