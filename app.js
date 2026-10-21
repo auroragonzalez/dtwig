@@ -72,7 +72,7 @@
     { g: "VENT_SIDE", name: "Side vents", unit: "%", levels: [0, 50, 100] },
     { g: "SHADE", name: "Shade screen", unit: "%", levels: [0, 50, 100] },
     { g: "FOG", name: "Fogging", unit: "s/min", levels: [0, 5, 10, 20] },
-    { g: "LIGHTS", name: "LED lights", unit: "/10", levels: [0, 4, 8, 10] },
+    { g: "LIGHTS", name: "LED lights", unit: "/10", levels: [0, 2, 4, 5, 8, 10] },
     { g: "RECIRC", name: "Centre recirculator", unit: "", levels: [0, 1], fmt: v => v ? "ON" : "off" },
     { g: "RECIRC2", name: "Fog recirculator", unit: "", levels: [0, 1], fmt: v => v ? "ON" : "off" },
   ];
@@ -91,7 +91,7 @@
 
   // ---------- state ----------
   const blocks = D.blocks;
-  const state = { i: 0, scen: { VENT_ROOF: 100, VENT_SIDE: 100 }, v: "T" };
+  const state = { i: 0, scen: {}, v: "T" };
 
   // Opening block: the midday block where the two twins disagree most about
   // opening every vent, so the first view already shows the point.
@@ -99,12 +99,15 @@
     let best = 0, gap = -1;
     blocks.forEach((b, i) => {
       if (!/ 1[2-5]:/.test(b.t0)) return;
-      const d = dt => treatMean(rollout(b, dt, state.scen), +dt) - treatMean(rollout(b, dt, null), +dt);
+      const d = dt => treatMean(rollout(b, dt, { VENT_ROOF: 100, VENT_SIDE: 100 }), +dt) - treatMean(rollout(b, dt, null), +dt);
       const x = d("60") - d("15");
       if (x > gap) { gap = x; best = i; }
     });
     state.i = best;
   })();
+
+  // A new block starts as logged; settings chosen for another day do not carry over.
+  const selectBlock = i => { state.i = i; state.scen = {}; render(); };
 
   // ---------- strip ----------
   const strip = document.getElementById("strip");
@@ -128,7 +131,7 @@
       else {
         btn.dataset.i = idx; btn.dataset.t = (blocks[idx].ext.T - tMin) / (tMax - tMin);
         btn.setAttribute("aria-label", `${day} ${h}:00, outside ${blocks[idx].ext.T} °C`);
-        btn.addEventListener("click", () => { state.i = idx; render(); });
+        btn.addEventListener("click", () => selectBlock(idx));
         cellBtns.push(btn);
       }
       col.appendChild(btn);
@@ -145,13 +148,17 @@
     box.innerHTML = `<div class="fader-top"><span class="fader-name">${a.name}</span><span class="fader-logged" id="lg-${a.g}"></span></div>`;
     const seg = document.createElement("div"); seg.className = "seg"; seg.setAttribute("role", "group");
     seg.setAttribute("aria-label", a.name);
-    const mk = (v, lbl, cls) => {
-      const b = document.createElement("button"); b.type = "button"; b.textContent = lbl; if (cls) b.className = cls;
-      b.addEventListener("click", () => { state.scen = { ...state.scen }; if (v == null) delete state.scen[a.g]; else state.scen[a.g] = v; render(); });
-      b.dataset.v = v == null ? "" : v; seg.appendChild(b); return b;
-    };
-    mk(null, "Logged", "reg");
-    a.levels.forEach(v => mk(v, fmtLevel(a, v)));
+    // Clicking the block's logged level returns the group to its logged series
+    // (the executed levels, not the programmed constant).
+    a.levels.forEach(v => {
+      const b = document.createElement("button"); b.type = "button"; b.textContent = fmtLevel(a, v);
+      b.addEventListener("click", () => {
+        state.scen = { ...state.scen };
+        if (v === blocks[state.i].cmd[a.g]) delete state.scen[a.g]; else state.scen[a.g] = v;
+        render();
+      });
+      b.dataset.v = v; seg.appendChild(b);
+    });
     segs[a.g] = seg; box.appendChild(seg); faders.appendChild(box);
   });
   const presets = document.getElementById("presets");
@@ -160,8 +167,8 @@
     b.addEventListener("click", () => { state.scen = { ...p.s }; render(); });
     presets.appendChild(b);
   });
-  document.getElementById("prev").addEventListener("click", () => { state.i = (state.i - 1 + blocks.length) % blocks.length; render(); });
-  document.getElementById("next").addEventListener("click", () => { state.i = (state.i + 1) % blocks.length; render(); });
+  document.getElementById("prev").addEventListener("click", () => selectBlock((state.i - 1 + blocks.length) % blocks.length));
+  document.getElementById("next").addEventListener("click", () => selectBlock((state.i + 1) % blocks.length));
 
   // ---------- charts ----------
   const NS = "http://www.w3.org/2000/svg";
@@ -248,7 +255,7 @@
   function drawChoice() {
     const box = document.getElementById("choice");
     const names = { VENT_ROOF: "Roof vents", VENT_SIDE: "Side vents", SHADE: "Screen", FOG: "Fogging" };
-    const colors = { VENT_ROOF: "var(--cold)", VENT_SIDE: "var(--t15)", SHADE: "var(--muted)", FOG: "var(--t60)" };
+    const colors = { VENT_ROOF: "var(--c-roof, var(--cold))", VENT_SIDE: "var(--c-side, var(--t15))", SHADE: "var(--c-shade, var(--muted))", FOG: "var(--c-fog, var(--t60))" };
     const row = dt => D.choice.find(c => c.dt_min === dt);
     const c15 = row(15), c60 = row(60);
     const bar = c => Object.keys(names).map(g => `<i style="width:${(100 * c["twin_picks_" + g]).toFixed(1)}%;background:${colors[g]}" title="${names[g]} ${(100 * c["twin_picks_" + g]).toFixed(0)} %"></i>`).join("");
@@ -283,13 +290,14 @@
       `<span>PAR <span class="num">${b.ext.PAR}</span> W m⁻²</span>`;
     cellBtns.forEach(c => c.setAttribute("aria-pressed", +c.dataset.i === state.i));
     ACT.forEach(a => {
-      const set = state.scen[a.g];
+      const set = state.scen[a.g], lg = b.cmd[a.g];
       segs[a.g].querySelectorAll("button").forEach(btn => {
-        const v = btn.dataset.v === "" ? null : +btn.dataset.v;
-        btn.setAttribute("aria-pressed", set == null ? v == null : v === set);
+        const v = +btn.dataset.v;
+        btn.classList.toggle("logged", v === lg);
+        btn.setAttribute("aria-pressed", set == null ? v === lg : v === set);
       });
-      const lg = b.cmd[a.g];
-      document.getElementById("lg-" + a.g).textContent = `programmed: ${fmtLevel(a, lg)}${a.unit && !a.fmt ? " " + a.unit : ""}`;
+      const lgTxt = `${fmtLevel(a, lg)}${a.unit && !a.fmt ? " " + a.unit : ""}`;
+      document.getElementById("lg-" + a.g).textContent = set == null ? `as logged (${lgTxt})` : `changed · logged ${lgTxt}`;
     });
 
     const r = {}, base = {};

@@ -40,9 +40,16 @@
       <div>
         <div class="strip" id="strip" role="group" aria-label="August daytime blocks"></div>
         <div class="strip-axis"><span>3 Aug</span><span>outside temperature of the block</span><span>2 Sep</span></div>
+        <p class="note">Only August blocks can be chosen. Each of them held its settings for 2 h and then
+          returned everything to zero for 1 h, so every what-if has a measured answer to compare with, and the
+          twins were trained on this campaign. The September campaign (16–23 Sep) held each level for only
+          30 min, most of its blocks switched between two levels without returning to zero, and it ran
+          the heaters, which the twins never saw.</p>
       </div>
       <div class="presets" id="presets"></div>
       <div class="faders" id="faders"></div>
+      <p class="note">The <span class="logged-key">underlined</span> level in each row is what the block
+        logged. Click it to go back to the logged setting.</p>
     </div>
 
     <div class="panel scope">
@@ -72,6 +79,16 @@
         <p>Every actuator group was randomised over two-hour blocks, so the campaign itself answers the
           question “what if this group had been at full rather than off?”. Here is that measured answer
           next to each twin’s, with every block simulated by a model that never saw its day.</p>
+        <p><b>How to read it.</b> Each row is one actuator group, and every value is the change in the
+          block-mean temperature (or humidity) from switching that group from off to full for the 2 h,
+          with everything else as it was. Left of the zero line means it cools (or dries); right means it
+          warms (or humidifies). The <b>dot</b> is the measured answer, estimated from the randomised blocks
+          with the weather taken into account; its whisker is ± one standard error. The
+          <span class="k15">blue bar</span> and the <span class="k60">orange bar</span> are what the
+          15-min and 1-h twins predict for the same switch, averaged over the blocks. A good twin puts
+          its bar near the dot. A bar on the other side of zero from the dot means the twin has the
+          sign wrong. For example, the 1-h twin puts the roof vents slightly on the warming side, where
+          the blocks measured about 1.3 °C of cooling.</p>
       </div>
       <div class="toggle" role="group" aria-label="Variable">
         <button id="v-T" aria-pressed="true">Temperature</button>
